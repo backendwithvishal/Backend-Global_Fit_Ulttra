@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global-Fi Ultra - AI Chat Demo</title>
+  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 800px;
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .status {
+      padding: 10px 20px;
+      background: #f7fafc;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #48bb78;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: #f7fafc;
+    }
+
+    .message {
+      margin-bottom: 16px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message-user {
+      text-align: right;
+    }
+
+    .message-content {
+      display: inline-block;
+      padding: 12px 16px;
+      border-radius: 12px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+
+    .message-user .message-content {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .message-ai .message-content {
+      background: white;
+      color: #2d3748;
+      border: 1px solid #e2e8f0;
+    }
+
+    .message-time {
+      font-size: 11px;
+      color: #a0aec0;
+      margin-top: 4px;
+    }
+
+    .typing {
+      display: none;
+      padding: 12px 16px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .typing span {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #cbd5e0;
+      margin: 0 2px;
+      animation: typing 1.4s infinite;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-10px); }
+    }
+
+    .input-area {
+      padding: 20px;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-area input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-area input:focus {
+      border-color: #667eea;
+    }
+
+    .input-area button {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .input-area button:hover {
+      transform: translateY(-2px);
+    }
+
+    .input-area button:active {
+      transform: translateY(0);
+    }
+
+    .input-area button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .examples {
+      padding: 10px 20px;
+      background: #edf2f7;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #4a5568;
+    }
+
+    .examples strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .examples button {
+      background: white;
+      border: 1px solid #cbd5e0;
+      padding: 4px 8px;
+      margin: 2px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .examples button:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🤖 Global-Fi Ultra AI Chat</h1>
+      <p>Powered by Groq AI - Ultra-fast financial analysis</p>
+    </div>
+
+    <div class="status">
+      <div class="status-dot"></div>
+      <span id="status">Connecting...</span>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="message message-ai">
+        <div class="message-content">
+          👋 Hello! I'm your AI financial assistant. Ask me anything about markets, stocks, crypto, or economics!
+        </div>
+        <div class="message-time">Just now</div>
+      </div>
+    </div>
+
+    <div class="examples">
+      <strong>Try these examples:</strong>
+      <button onclick="sendExample('Explain what causes inflation')">Explain inflation</button>
+      <button onclick="sendExample('What factors affect stock prices?')">Stock factors</button>
+      <button onclick="sendExample('Compare Bitcoin vs Ethereum')">BTC vs ETH</button>
+      <button onclick="sendExample('Should I invest in tech stocks?')">Tech stocks</button>
+    </div>
+
+    <div class="input-area">
+      <input 
+        type="text" 
+        id="messageInput" 
+        placeholder="Ask me anything about finance..."
+        onkeypress="handleKeyPress(event)"
+      >
+      <button onclick="sendMessage()" id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // Connect to WebSocket
+    const socket = io('http://localhost:3000');
+    let sessionId = Date.now().toString();
+    let isStreaming = false;
+
+    // DOM elements
+    const messagesDiv = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusSpan = document.getElementById('status');
+
+    // Connection events
+    socket.on('connect', () => {
+      statusSpan.textContent = 'Connected';
+      console.log('✅ Connected to server');
+    });
+
+    socket.on('disconnect', () => {
+      statusSpan.textContent = 'Disconnected';
+      console.log('❌ Disconnected from server');
+    });
+
+    // AI events
+    socket.on('ai:stream:start', (data) => {
+      console.log('Stream started:', data);
+      isStreaming = true;
+      sendBtn.disabled = true;
+      addTypingIndicator();
+    });
+
+    socket.on('ai:stream:chunk', (data) => {
+      updateStreamingMessage(data.chunk);
+    });
+
+    socket.on('ai:stream:complete', (data) => {
+      console.log('Stream complete:', data);
+      isStreaming = false;
+      sendBtn.disabled = false;
+      removeTypingIndicator();
+      finalizeStreamingMessage();
+    });
+
+    socket.on('ai:error', (data) => {
+      console.error('AI error:', data);
+      isStreaming = false;
+      sendBtn.disabled = false;
+      removeTypingIndicator();
+      addMessage('ai', `❌ Error: ${data.error}`);
+    });
+
+    // Message handling
+    function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message || isStreaming) return;
+
+      // Add user message
+      addMessage('user', message);
+
+      // Send to AI
+      socket.emit('ai:chat', {
+        message,
+        sessionId
+      });
+
+      // Clear input
+      messageInput.value = '';
+    }
+
+    function sendExample(text) {
+      messageInput.value = text;
+      sendMessage();
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    }
+
+    function addMessage(type, content) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message message-${type}`;
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      contentDiv.textContent = content;
+
+      const timeDiv = document.createElement('div');
+      timeDiv.className = 'message-time';
+      timeDiv.textContent = new Date().toLocaleTimeString();
+
+      messageDiv.appendChild(contentDiv);
+      messageDiv.appendChild(timeDiv);
+      messagesDiv.appendChild(messageDiv);
+
+      scrollToBottom();
+    }
+
+    let streamingMessageDiv = null;
+
+    function addTypingIndicator() {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message message-ai';
+      messageDiv.id = 'streaming-message';
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      contentDiv.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+
+      messageDiv.appendChild(contentDiv);
+      messagesDiv.appendChild(messageDiv);
+      streamingMessageDiv = contentDiv;
+
+      scrollToBottom();
+    }
+
+    function updateStreamingMessage(chunk) {
+      if (!streamingMessageDiv) return;
+
+      if (streamingMessageDiv.querySelector('.typing')) {
+        streamingMessageDiv.innerHTML = '';
+      }
+
+      streamingMessageDiv.textContent += chunk;
+      scrollToBottom();
+    }
+
+    function removeTypingIndicator() {
+      // Typing indicator is replaced by actual content
+    }
+
+    function finalizeStreamingMessage() {
+      if (!streamingMessageDiv) return;
+
+      const messageDiv = streamingMessageDiv.parentElement;
+      const timeDiv = document.createElement('div');
+      timeDiv.className = 'message-time';
+      timeDiv.textContent = new Date().toLocaleTimeString();
+      messageDiv.appendChild(timeDiv);
+
+      streamingMessageDiv = null;
+    }
+
+    function scrollToBottom() {
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Focus input on load
+    window.onload = () => {
+      messageInput.focus();
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+name: Keep-Alive Server Cron Job
+
+on:
+  schedule:
+    # Runs every 10 minutes (cron syntax: minute hour day month day-of-week)
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  ping-backend:
+    name: Ping Backend Keep-Alive API
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Keep-Alive API Endpoint
+        env:
+          TARGET_URL: ${{ secrets.BACKEND_KEEP_ALIVE_URL || 'https://globalfi-ultra.onrender.com/api/v1/health/ping' }}
+        run: |
+          echo "Pinging target server: $TARGET_URL"
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nLATENCY:%{time_total}s" -X GET "$TARGET_URL")
+          echo "$RESPONSE"
+          
+          STATUS_CODE=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d':' -f2)
+          if [ "$STATUS_CODE" -eq 200 ]; then
+            echo "✅ Backend is active and responded with HTTP 200"
+          else
+            echo "⚠️ Warning: Backend responded with HTTP status $STATUS_CODE"
+          fi

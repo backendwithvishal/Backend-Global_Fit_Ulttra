@@ -1,0 +1,49 @@
+# docker-compose.yml
+# Runs ONLY Redis + RabbitMQ locally.
+# MongoDB is hosted on Atlas (cloud) — no local mongo container needed.
+# The backend app is run separately via: npm run backend:dev
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: globalfi-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - globalfi-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: globalfi-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - globalfi-network
+
+volumes:
+  redis-data:
+  rabbitmq-data:
+
+networks:
+  globalfi-network:
+    driver: bridge

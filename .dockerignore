@@ -1,0 +1,16 @@
+.env
+.env.*
+node_modules
+npm-debug.log*
+logs
+.git
+.gitignore
+.dockerignore
+README.md
+docs
+examples
+__tests__
+*.test.js
+jest.config.js
+eslint.config.js
+.eslintcache
