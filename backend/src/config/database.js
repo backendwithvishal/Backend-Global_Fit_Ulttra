@@ -9,7 +9,8 @@ const mongoOptions = {
     minPoolSize: 2,
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
-    family: 4, // Use IPv4
+    // Note: Do not force family: 4 on SRV (mongodb+srv://) URIs as it interferes with Node.js DNS SRV resolution
+    ...(config.database.uri && !config.database.uri.startsWith('mongodb+srv://') ? { family: 4 } : {}),
 };
 
 export const connectDatabase = async () => {
@@ -30,7 +31,14 @@ export const connectDatabase = async () => {
 
         return mongoose;
     } catch (error) {
-        logger.error('❌ Failed to connect to MongoDB', { error: error.message });
+        if (error.code === 'ENOTFOUND' || (error.message && error.message.includes('querySrv ENOTFOUND'))) {
+            logger.error('❌ MongoDB SRV DNS Lookup Failed! Please check your MONGODB_URI environment variable on Render/hosting service.', {
+                details: 'The MongoDB Atlas cluster hostname in MONGODB_URI could not be found or resolved.',
+                error: error.message
+            });
+        } else {
+            logger.error('❌ Failed to connect to MongoDB', { error: error.message });
+        }
         throw error;
     }
 };
