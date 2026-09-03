@@ -63,6 +63,12 @@ services:
       - key: RABBITMQ_URL
         sync: false
 
+      # ── Keep-Alive (Self-Ping) ──────────────────────
+      - key: KEEP_ALIVE_ENABLED
+        value: "true"
+      - key: KEEP_ALIVE_URL
+        value: https://backend-global-fit-ulttra.onrender.com/api/v1/health/ping
+
       # ── Logging ─────────────────────────────────────
       - key: LOG_LEVEL
         value: info

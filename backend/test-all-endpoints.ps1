@@ -1,7 +1,7 @@
 # Test All Endpoints Script (PowerShell)
 # Tests all Global-Fi Ultra API endpoints
 
-$BaseUrl = "http://localhost:4000"
+$BaseUrl = if ($env:BASE_URL) { $env:BASE_URL } else { "https://backend-global-fit-ulttra.onrender.com" }
 $Total = 0
 $Passed = 0
 $Failed = 0

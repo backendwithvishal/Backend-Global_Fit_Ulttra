@@ -66,7 +66,10 @@ export class KeepAliveService {
         if (this.isPinging) return;
         this.isPinging = true;
 
-        const targetUrl = this.url || `http://localhost:${config.server.port}/api/v1/health/ping`;
+        const defaultUrl = process.env.RENDER_EXTERNAL_URL 
+            ? `${process.env.RENDER_EXTERNAL_URL}/api/v1/health/ping` 
+            : `http://localhost:${config.server.port}/api/v1/health/ping`;
+        const targetUrl = this.url || defaultUrl;
         const startTime = Date.now();
 
         try {

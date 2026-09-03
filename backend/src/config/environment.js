@@ -29,7 +29,7 @@ const envSchema = z.object({
   FINNHUB_API_KEY: z.string().default(''),
 
   // Security
-  CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:5173'),
+  CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:5173,https://backend-global-fit-ulttra.onrender.com'),
   RATE_LIMIT_WINDOW_MS: z.string().transform(Number).default('900000'),
   RATE_LIMIT_MAX_REQUESTS: z.string().transform(Number).default('100'),
 
@@ -47,7 +47,7 @@ const envSchema = z.object({
   LOG_FILE_PATH: z.string().default('./logs/app.log'),
 
   // Socket.io
-  SOCKET_IO_CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:5173'),
+  SOCKET_IO_CORS_ORIGIN: z.string().default('http://localhost:3000,http://localhost:5173,https://backend-global-fit-ulttra.onrender.com'),
 
   // Feature flags
   ENABLE_CACHE_WARMING: z.string().transform(v => v === 'true').default('false'),
@@ -63,8 +63,8 @@ const envSchema = z.object({
   GROQ_FAST_MODEL: z.string().default('llama-3.1-8b-instant'),
 
   // Keep-Alive self pinging (prevents server sleep in production)
-  KEEP_ALIVE_ENABLED: z.string().transform(v => v === 'true').default('false'),
-  KEEP_ALIVE_URL: z.string().default(''),
+  KEEP_ALIVE_ENABLED: z.string().transform(v => v === 'true').default('true'),
+  KEEP_ALIVE_URL: z.string().default('https://backend-global-fit-ulttra.onrender.com/api/v1/health/ping'),
   KEEP_ALIVE_INTERVAL_MS: z.string().transform(Number).default('600000'),
 });
 

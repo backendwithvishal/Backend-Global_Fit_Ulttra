@@ -227,7 +227,8 @@ npm run redis:export     # Export to JSON
 
 ## API Reference
 
-Base URL: `http://localhost:3000/api/v1`
+- **Live Production URL**: `https://backend-global-fit-ulttra.onrender.com/api/v1`
+- **Local Development Base URL**: `http://localhost:4000/api/v1`
 
 ### Health & Status
 
@@ -577,6 +578,10 @@ All code has been verified and is production-ready:
 ## Deployment
 
 ### Render.com (Recommended)
+
+**Live Production Deployment:**
+- **Base URL:** `https://backend-global-fit-ulttra.onrender.com`
+- **Health Check:** `https://backend-global-fit-ulttra.onrender.com/api/v1/health`
 
 The repository includes `render.yaml` for automated blueprint deployment.
 

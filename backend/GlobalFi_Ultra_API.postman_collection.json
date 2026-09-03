@@ -2,13 +2,13 @@
     "info": {
         "_postman_id": "globalfi-ultra-mvc",
         "name": "Global-Fi Ultra API v1",
-        "description": "Complete API collection for Global-Fi Ultra financial data orchestration engine.\n\nBase URL: http://localhost:4000\nAPI Prefix: /api/v1",
+        "description": "Complete API collection for Global-Fi Ultra financial data orchestration engine.\n\nRender Production URL: https://backend-global-fit-ulttra.onrender.com\nLocal Base URL: http://localhost:4000\nAPI Prefix: /api/v1",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "variable": [
         {
             "key": "baseUrl",
-            "value": "http://localhost:4000/api/v1",
+            "value": "https://backend-global-fit-ulttra.onrender.com/api/v1",
             "type": "string"
         }
     ],

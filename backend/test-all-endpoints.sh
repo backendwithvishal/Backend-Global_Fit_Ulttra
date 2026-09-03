@@ -3,7 +3,7 @@
 # Test All Endpoints Script
 # Tests all Global-Fi Ultra API endpoints
 
-BASE_URL="http://localhost:4000"
+BASE_URL="${BASE_URL:-https://backend-global-fit-ulttra.onrender.com}"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'

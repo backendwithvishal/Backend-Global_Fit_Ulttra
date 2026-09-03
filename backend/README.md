@@ -46,6 +46,9 @@ Required for full functionality:
 
 ## API Endpoints
 
+- **Live Production Base URL**: `https://backend-global-fit-ulttra.onrender.com/api/v1`
+- **Local Base URL**: `http://localhost:4000/api/v1`
+
 All routes are prefixed with `/api/v1`:
 
 | Route | Description |
