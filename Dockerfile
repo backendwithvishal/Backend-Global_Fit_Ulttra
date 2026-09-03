@@ -28,7 +28,7 @@ RUN addgroup -g 1001 -S nodejs && \
 COPY backend/package*.json ./
 
 # Install only production dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm ci --omit=dev && npm cache clean --force
 
 # Copy source from builder
 COPY --from=builder /app/src ./src
