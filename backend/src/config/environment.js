@@ -13,7 +13,7 @@ const envSchema = z.object({
   HOST: z.string().default('0.0.0.0'),
 
   // MongoDB
-  MONGODB_URI: z.string().default('mongodb://localhost:27017/globalfi'),
+  MONGODB_URI: z.string().transform(v => v.trim() || 'mongodb://localhost:27017/globalfi').default('mongodb://localhost:27017/globalfi'),
   MONGODB_POOL_SIZE: z.string().transform(Number).default('10'),
 
   // Redis
@@ -79,7 +79,13 @@ const parseEnv = () => {
     process.exit(1);
   }
 
-  return result.data;
+  const data = result.data;
+  // Ensure server binds to 0.0.0.0 in production to satisfy container & Render port scanner requirements
+  if (data.NODE_ENV === 'production' && (data.HOST === 'localhost' || data.HOST === '127.0.0.1')) {
+    data.HOST = '0.0.0.0';
+  }
+
+  return data;
 };
 
 export const env = parseEnv();

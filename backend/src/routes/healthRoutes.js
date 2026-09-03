@@ -35,8 +35,8 @@ import { healthRateLimiter } from '../middleware/index.js';
 export const createHealthRoutes = (controller) => {
     const router = Router();
 
-    // GET /health/health — Basic liveness: returns 200 if the process is running
-    // Used by Render.com health checks and load balancers
+    // GET /api/v1/health (and /api/v1/health/health) — Basic liveness check
+    router.get('/', healthRateLimiter, (req, res) => controller.health(req, res));
     router.get('/health', healthRateLimiter, (req, res) => controller.health(req, res));
 
     // GET /health/readiness — Detailed readiness: checks MongoDB, Redis, and external API connectivity

@@ -181,13 +181,16 @@ export class Container {
         let aiJobQueue = null;
         let aiController = null;
 
-        if (config.ai.groqApiKey && config.ai.groqApiKey !== '' && !config.ai.groqApiKey.startsWith("'")) {
+        const rawApiKey = (config.ai.groqApiKey || '').trim().replace(/^['"]|['"]$/g, '');
+        const hasValidKeyFormat = rawApiKey.length >= 10 && !rawApiKey.toLowerCase().includes('your-groq-api-key');
+
+        if (hasValidKeyFormat) {
             try {
                 logger.info('Initializing AI services...');
 
                 // Create and validate the Groq LLM client
                 groqClient = new GroqClient({
-                    apiKey: config.ai.groqApiKey,
+                    apiKey: rawApiKey,
                     cacheService: cache,
                     logger
                 });
@@ -223,8 +226,7 @@ export class Container {
                 logger.info('✅ AI services initialized successfully');
             } catch (error) {
                 // Graceful degradation: AI failure doesn't crash the app
-                logger.error('❌ Failed to initialize AI services', { error: error.message });
-                logger.warn('⚠️  AI features will be disabled');
+                logger.warn('⚠️  Failed to initialize AI services - AI features will be disabled', { error: error.message });
                 groqClient = null;
                 aiNewsService = null;
                 aiMarketService = null;
@@ -233,7 +235,7 @@ export class Container {
                 this.aiStreamHandler = null;
             }
         } else {
-            logger.info('ℹ️  AI features disabled (GROQ_API_KEY not configured)');
+            logger.info('ℹ️  AI features disabled: GROQ_API_KEY is not configured');
         }
 
         // ─── Layer 2: Services ───────────────────────────────────────

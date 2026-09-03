@@ -65,6 +65,15 @@ export const createRedisClient = () => {
 };
 
 export const connectRedis = async () => {
+    const isProduction = config.server.isProd;
+    const isLocalhostRedis = !config.redis.url || config.redis.url.includes('localhost') || config.redis.url.includes('127.0.0.1');
+
+    if (isProduction && isLocalhostRedis) {
+        logger.warn('⚠️ REDIS_URL not configured for production environment - running without Redis cache');
+        logger.info('ℹ️  Impact: Rate limiting and caching will use in-memory fallbacks');
+        return null;
+    }
+
     if (!config.redis.url) {
         logger.warn('⚠️ REDIS_URL not set - running without cache');
         return null;
@@ -89,7 +98,7 @@ export const connectRedis = async () => {
         
         if (client) {
             try {
-                client.disconnect();
+                client.disconnect(false);
             } catch (e) {
                 // Ignore cleanup errors
             }

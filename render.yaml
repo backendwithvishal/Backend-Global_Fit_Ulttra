@@ -13,7 +13,7 @@ services:
     branch: main
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    healthCheckPath: /api/v1/health/health
+    healthCheckPath: /api/v1/health
     envVars:
       # ── Server ──────────────────────────────────────
       - key: NODE_ENV

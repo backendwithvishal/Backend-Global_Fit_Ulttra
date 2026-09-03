@@ -245,10 +245,11 @@ const startServer = async () => {
         setupGracefulShutdown(httpServer, container);
 
         // ─── Step 9: Start Listening ────────────────────────────────
-        // Safe host fallback: if HOST env var is missing, '0.0.0.0' ensures
-        // consistent binding on Render.com, Docker, and local environments.
-        const host = config.server.host || '0.0.0.0';
-        const port = config.server.port;
+        // Binding to '0.0.0.0' ensures external traffic reaches the server on Render & Docker
+        const host = (config.server.isProd && (config.server.host === 'localhost' || config.server.host === '127.0.0.1'))
+            ? '0.0.0.0'
+            : (config.server.host || '0.0.0.0');
+        const port = Number(process.env.PORT) || config.server.port || 4000;
 
         httpServer.listen(port, host, () => {
             logger.info(`🚀 Global-Fi Ultra running on http://${host}:${port}`);
